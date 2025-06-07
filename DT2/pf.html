@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PF Timer - Inspira Debate Timer</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --button-bg: #f0f0f0;
+            --button-border: #dddddd;
+            --button-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --timer-green: #4CAF50;
+            --timer-orange: #FF9800;
+            --timer-red: #F44336;
+            --section-bg: #f9f9f9;
+        }
+
+        body.dark {
+            --bg-color: #222222;
+            --text-color: #f0f0f0;
+            --button-bg: #444444;
+            --button-border: #555555;
+            --button-hover-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+            --section-bg: #333333;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .theme-toggle, .fullscreen-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .container.fade-in {
+            opacity: 1;
+        }
+
+        .topic-container {
+            margin-bottom: 20px;
+        }
+
+        .topic-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .coin-toss-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--section-bg);
+            border-radius: 8px;
+        }
+
+        .coin-toss-result {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .winner-selection {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .teams-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .team-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .team-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .speaker-count-container {
+            margin-bottom: 15px;
+        }
+
+        .speaker-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .prep-timers-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .prep-timer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 15px;
+            background-color: var(--section-bg);
+            border-radius: 8px;
+        }
+
+        .prep-timer-header {
+            font-weight: bold;
+        }
+
+        .prep-timer-display {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .prep-timer-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .timer-display {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: var(--section-bg);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .segment-info {
+            margin-bottom: 15px;
+        }
+
+        .segment-title, .speaker-name {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .timer {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .timer-button {
+            padding: 8px 15px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .timer-button:hover {
+            background-color: var(--button-border);
+        }
+
+        hr {
+            width: 100%;
+            border: none;
+            border-top: 1px solid var(--button-border);
+            margin: 20px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .blinking {
+            animation: blink 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" id="backButton">← Back Home</button>
+            <h1>INSPIRA DEBATE TIMER</h1>
+            <div class="controls">
+                <button class="fullscreen-toggle" id="fullscreenToggle">⛶</button>
+                <button class="theme-toggle" id="themeToggle">☀</button>
+            </div>
+        </div>
+
+        <div class="topic-container">
+            <input type="text" id="topicInput" class="topic-input" placeholder="Enter debate topic...">
+        </div>
+
+        <div class="coin-toss-container">
+            <h3>COIN TOSS</h3>
+            <button class="timer-button" id="flipCoinButton">Flip</button>
+            <div class="coin-toss-result" id="coinResult"></div>
+            
+            <div class="winner-selection" id="winnerSelection">
+                <p>Winner selects:</p>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="selectSide" name="winnerChoice" value="side">
+                        <label for="selectSide">Side</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="selectOrder" name="winnerChoice" value="order">
+                        <label for="selectOrder">Order</label>
+                    </div>
+                </div>
+                <button class="timer-button" id="confirmSelectionButton">Confirm</button>
+            </div>
+        </div>
+
+        <div class="speaker-count-container">
+            <label for="speakerCount">Number of speakers per team:</label>
+            <select id="speakerCount" class="speaker-input">
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+        </div>
+
+        <div class="teams-container">
+            <div class="team-column">
+                <div class="team-header">Team 1</div>
+                <div id="team1Speakers">
+                    <input type="text" class="speaker-input" id="team1speaker1" placeholder="Speaker 1">
+                    <input type="text" class="speaker-input" id="team1speaker2" placeholder="Speaker 2">
+                </div>
+            </div>
+            <div class="team-column">
+                <div class="team-header">Team 2</div>
+                <div id="team2Speakers">
+                    <input type="text" class="speaker-input" id="team2speaker1" placeholder="Speaker 1">
+                    <input type="text" class="speaker-input" id="team2speaker2" placeholder="Speaker 2">
+                </div>
+            </div>
+        </div>
+
+        <div class="prep-timers-container">
+            <div class="prep-timer">
+                <div class="prep-timer-header">Team 1 Prep</div>
+                <div class="prep-timer-display" id="team1PrepDisplay">4:00</div>
+                <div class="prep-timer-controls">
+                    <button class="timer-button" id="team1PrepStart">Start</button>
+                    <button class="timer-button" id="team1PrepPause">Pause</button>
+                    <button class="timer-button" id="team1PrepReset">Reset</button>
+                </div>
+            </div>
+            <div class="prep-timer">
+                <div class="prep-timer-header">Team 2 Prep</div>
+                <div class="prep-timer-display" id="team2PrepDisplay">4:00</div>
+                <div class="prep-timer-controls">
+                    <button class="timer-button" id="team2PrepStart">Start</button>
+                    <button class="timer-button" id="team2PrepPause">Pause</button>
+                    <button class="timer-button" id="team2PrepReset">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="timer-display">
+            <div class="segment-info">
+                <div class="segment-title" id="currentSegment">SEGMENT: Team 1 Constructive</div>
+                <div class="speaker-name" id="currentSpeaker">SPEAKER(S): </div>
+            </div>
+            <div class="timer" id="mainTimer">4:00</div>
+            <div class="timer-controls">
+                <button class="timer-button" id="startButton">Start</button>
+                <button class="timer-button" id="pauseButton">Pause</button>
+                <button class="timer-button" id="nextButton">Next</button>
+                <button class="timer-button" id="resetButton">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bellSound" src="bell.mp3" preload="auto"></audio>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark');
+            themeToggle.textContent = '🌙';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            
+            // Update button text and save preference
+            if (body.classList.contains('dark')) {
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.textContent = '☀';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Back button functionality
+        document.getElementById('backButton').addEventListener('click', () => {
+            // Fade out transition
+            document.querySelector('.container').classList.remove('fade-in');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500); // Wait for fade out animation
+        });
+
+        // Fullscreen toggle
+        document.getElementById('fullscreenToggle').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        // PF debate sequence
+        const debateSequence = [
+            { segment: 'Team 1 Constructive', team: 1, time: 4 * 60 },
+            { segment: 'Team 2 Constructive', team: 2, time: 4 * 60 },
+            { segment: 'Crossfire (1st spkrs)', team: 0, time: 3 * 60 },
+            { segment: 'Team 1 Rebuttal', team: 1, time: 4 * 60 },
+            { segment: 'Team 2 Rebuttal', team: 2, time: 4 * 60 },
+            { segment: 'Crossfire (2nd spkrs)', team: 0, time: 3 * 60 },
+            { segment: 'Team 1 Summary', team: 1, time: 3 * 60 },
+            { segment: 'Team 2 Summary', team: 2, time: 3 * 60 },
+            { segment: 'Grand Crossfire', team: 0, time: 3 * 60 },
+            { segment: 'Team 1 Final Focus', team: 1, time: 2 * 60 },
+            { segment: 'Team 2 Final Focus', team: 2, time: 2 * 60 }
+        ];
+
+        let currentSequenceIndex = 0;
+        let mainTimerInterval;
+        let team1PrepTimerInterval;
+        let team2PrepTimerInterval;
+        let mainTimerSeconds;
+        let team1PrepTimerSeconds = 4 * 60; // 4 minutes
+        let team2PrepTimerSeconds = 4 * 60; // 4 minutes
+        let topicLocked = false;
+
+        // Coin toss functionality
+        document.getElementById('flipCoinButton').addEventListener('click', () => {
+            const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
+            const resultElement = document.getElementById('coinResult');
+            resultElement.textContent = result;
+            resultElement.style.display = 'block';
+            
+            // Show winner selection
+            document.getElementById('winnerSelection').style.display = 'block';
+        });
+
+        document.getElementById('confirmSelectionButton').addEventListener('click', () => {
+            const sideSelected = document.getElementById('selectSide').checked;
+            const orderSelected = document.getElementById('selectOrder').checked;
+            
+            if (sideSelected || orderSelected) {
+                // Hide the coin toss container after selection is confirmed
+                document.querySelector('.coin-toss-container').style.display = 'none';
+            }
+        });
+
+        // Speaker count change handler
+        document.getElementById('speakerCount').addEventListener('change', function() {
+            const count = parseInt(this.value);
+            updateSpeakerInputs('team1Speakers', count);
+            updateSpeakerInputs('team2Speakers', count);
+        });
+
+        function updateSpeakerInputs(containerId, count) {
+            const container = document.getElementById(containerId);
+            const teamNum = containerId === 'team1Speakers' ? 1 : 2;
+            
+            // Clear existing inputs
+            container.innerHTML = '';
+            
+            // Add new inputs based on count
+            for (let i = 1; i <= count; i++) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'speaker-input';
+                input.id = `team${teamNum}speaker${i}`;
+                input.placeholder = `Speaker ${i}`;
+                input.addEventListener('input', updateCurrentSpeakerInfo);
+                container.appendChild(input);
+            }
+        }
+
+        // Initialize timers
+        function initMainTimer() {
+            const currentSpeech = debateSequence[currentSequenceIndex];
+            mainTimerSeconds = currentSpeech.time;
+            updateMainTimerDisplay();
+            updateCurrentSpeakerInfo();
+        }
+
+        // Timer display updates
+        function updateMainTimerDisplay() {
+            const minutes = Math.floor(mainTimerSeconds / 60);
+            const seconds = mainTimerSeconds % 60;
+            document.getElementById('mainTimer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update timer color based on time remaining
+            const timerElement = document.getElementById('mainTimer');
+            if (mainTimerSeconds <= 0) {
+                timerElement.style.color = 'var(--timer-red)';
+            } else if (mainTimerSeconds <= 60) {
+                timerElement.style.color = 'var(--timer-orange)';
+            } else {
+                timerElement.style.color = 'var(--timer-green)';
+            }
+        }
+
+        function updateTeam1PrepTimerDisplay() {
+            const minutes = Math.floor(team1PrepTimerSeconds / 60);
+            const seconds = team1PrepTimerSeconds % 60;
+            document.getElementById('team1PrepDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateTeam2PrepTimerDisplay() {
+            const minutes = Math.floor(team2PrepTimerSeconds / 60);
+            const seconds = team2PrepTimerSeconds % 60;
+            document.getElementById('team2PrepDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Update current speaker information
+        function updateCurrentSpeakerInfo() {
+            const currentSpeech = debateSequence[currentSequenceIndex];
+            document.getElementById('currentSegment').textContent = `SEGMENT: ${currentSpeech.segment}`;
+            
+            let speakerName = '';
+            if (currentSpeech.team === 1) {
+                // For Team 1 speeches
+                if (currentSpeech.segment.includes('Constructive')) {
+                    speakerName = document.getElementById('team1speaker1').value || 'Team 1 Speaker 1';
+                } else if (currentSpeech.segment.includes('Rebuttal')) {
+                    speakerName = document.getElementById('team1speaker2').value || 'Team 1 Speaker 2';
+                } else if (currentSpeech.segment.includes('Summary')) {
+                    speakerName = document.getElementById('team1speaker1').value || 'Team 1 Speaker 1';
+                } else if (currentSpeech.segment.includes('Final Focus')) {
+                    speakerName = document.getElementById('team1speaker2').value || 'Team 1 Speaker 2';
+                }
+            } else if (currentSpeech.team === 2) {
+                // For Team 2 speeches
+                if (currentSpeech.segment.includes('Constructive')) {
+                    speakerName = document.getElementById('team2speaker1').value || 'Team 2 Speaker 1';
+                } else if (currentSpeech.segment.includes('Rebuttal')) {
+                    speakerName = document.getElementById('team2speaker2').value || 'Team 2 Speaker 2';
+                } else if (currentSpeech.segment.includes('Summary')) {
+                    speakerName = document.getElementById('team2speaker1').value || 'Team 2 Speaker 1';
+                } else if (currentSpeech.segment.includes('Final Focus')) {
+                    speakerName = document.getElementById('team2speaker2').value || 'Team 2 Speaker 2';
+                }
+            } else if (currentSpeech.segment.includes('Crossfire')) {
+                // For crossfire segments
+                if (currentSpeech.segment.includes('1st spkrs')) {
+                    speakerName = `${document.getElementById('team1speaker1').value || 'Team 1 Speaker 1'} & ${document.getElementById('team2speaker1').value || 'Team 2 Speaker 1'}`;
+                } else if (currentSpeech.segment.includes('2nd spkrs')) {
+                    speakerName = `${document.getElementById('team1speaker2').value || 'Team 1 Speaker 2'} & ${document.getElementById('team2speaker2').value || 'Team 2 Speaker 2'}`;
+                } else if (currentSpeech.segment.includes('Grand')) {
+                    // All speakers for Grand Crossfire
+                    const speakerCount = parseInt(document.getElementById('speakerCount').value);
+                    let team1Speakers = [];
+                    let team2Speakers = [];
+                    
+                    for (let i = 1; i <= speakerCount; i++) {
+                        const team1Speaker = document.getElementById(`team1speaker${i}`).value || `Team 1 Speaker ${i}`;
+                        const team2Speaker = document.getElementById(`team2speaker${i}`).value || `Team 2 Speaker ${i}`;
+                        team1Speakers.push(team1Speaker);
+                        team2Speakers.push(team2Speaker);
+                    }
+                    
+                    speakerName = `${team1Speakers.join(', ')} & ${team2Speakers.join(', ')}`;
+                }
+            }
+            
+            document.getElementById('currentSpeaker').textContent = `SPEAKER(S): ${speakerName}`;
+        }
+
+        // Bell functionality
+        function playBell(rings) {
+            const bellSound = document.getElementById('bellSound');
+            let ringCount = 0;
+            
+            function playNextRing() {
+                if (ringCount < rings) {
+                    bellSound.currentTime = 0;
+                    bellSound.play();
+                    ringCount++;
+                    setTimeout(playNextRing, 600);
+                }
+            }
+            
+            playNextRing();
+        }
+
+        // Main timer controls
+        document.getElementById('startButton').addEventListener('click', () => {
+            if (mainTimerInterval) return; // Already running
+            
+            // Lock topic on first speech start
+            if (!topicLocked) {
+                document.getElementById('topicInput').readOnly = true;
+                topicLocked = true;
+            }
+            
+            mainTimerInterval = setInterval(() => {
+                if (mainTimerSeconds > 0) {
+                    mainTimerSeconds--;
+                    updateMainTimerDisplay();
+                    
+                    // Play bell at exactly 0
+                    if (mainTimerSeconds === 0) {
+                        playBell(1);
+                    }
+                }
+            }, 1000);
+        });
+
+        document.getElementById('pauseButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+        });
+
+        document.getElementById('resetButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+            initMainTimer();
+        });
+
+        document.getElementById('nextButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+            
+            currentSequenceIndex = (currentSequenceIndex + 1) % debateSequence.length;
+            initMainTimer();
+        });
+
+        // Team 1 Prep timer controls
+        document.getElementById('team1PrepStart').addEventListener('click', () => {
+            if (team1PrepTimerInterval) return; // Already running
+            
+            team1PrepTimerInterval = setInterval(() => {
+                if (team1PrepTimerSeconds > 0) {
+                    team1PrepTimerSeconds--;
+                    updateTeam1PrepTimerDisplay();
+                    
+                    // Play bell when prep time ends
+                    if (team1PrepTimerSeconds === 0) {
+                        playBell(1);
+                        clearInterval(team1PrepTimerInterval);
+                        team1PrepTimerInterval = null;
+                    }
+                }
+            }, 1000);
+        });
+
+        document.getElementById('team1PrepPause').addEventListener('click', () => {
+            clearInterval(team1PrepTimerInterval);
+            team1PrepTimerInterval = null;
+        });
+
+        document.getElementById('team1PrepReset').addEventListener('click', () => {
+            clearInterval(team1PrepTimerInterval);
+            team1PrepTimerInterval = null;
+            team1PrepTimerSeconds = 4 * 60; // Reset to 4 minutes
+            updateTeam1PrepTimerDisplay();
+        });
+
+        // Team 2 Prep timer controls
+        document.getElementById('team2PrepStart').addEventListener('click', () => {
+            if (team2PrepTimerInterval) return; // Already running
+            
+            team2PrepTimerInterval = setInterval(() => {
+                if (team2PrepTimerSeconds > 0) {
+                    team2PrepTimerSeconds--;
+                    updateTeam2PrepTimerDisplay();
+                    
+                    // Play bell when prep time ends
+                    if (team2PrepTimerSeconds === 0) {
+                        playBell(1);
+                        clearInterval(team2PrepTimerInterval);
+                        team2PrepTimerInterval = null;
+                    }
+                }
+            }, 1000);
+        });
+
+        document.getElementById('team2PrepPause').addEventListener('click', () => {
+            clearInterval(team2PrepTimerInterval);
+            team2PrepTimerInterval = null;
+        });
+
+        document.getElementById('team2PrepReset').addEventListener('click', () => {
+            clearInterval(team2PrepTimerInterval);
+            team2PrepTimerInterval = null;
+            team2PrepTimerSeconds = 4 * 60; // Reset to 4 minutes
+            updateTeam2PrepTimerDisplay();
+        });
+
+        // Initialize
+        initMainTimer();
+        updateTeam1PrepTimerDisplay();
+        updateTeam2PrepTimerDisplay();
+
+        // Add fade-in class after a short delay
+        setTimeout(() => {
+            document.querySelector('.container').classList.add('fade-in');
+        }, 100);
+    </script>
+</body>
+</html>

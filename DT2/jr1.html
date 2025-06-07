@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Junior 1v1 Timer - Inspira Debate Timer</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --button-bg: #f0f0f0;
+            --button-border: #dddddd;
+            --button-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --timer-green: #4CAF50;
+            --timer-orange: #FF9800;
+            --timer-red: #F44336;
+        }
+
+        body.dark {
+            --bg-color: #222222;
+            --text-color: #f0f0f0;
+            --button-bg: #444444;
+            --button-border: #555555;
+            --button-hover-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .container.fade-in {
+            opacity: 1;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .theme-toggle, .fullscreen-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .input-row label {
+            min-width: 60px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .prep-timer {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .prep-time {
+            font-weight: bold;
+        }
+
+        .timer-display {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--button-border);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .timer {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .timer-button {
+            padding: 8px 15px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .timer-button:hover {
+            background-color: var(--button-border);
+        }
+
+        hr {
+            width: 100%;
+            border: none;
+            border-top: 1px solid var(--button-border);
+            margin: 20px 0;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .blinking {
+            animation: blink 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" id="backButton">← Back Home</button>
+            <h1>INSPIRA DEBATE TIMER</h1>
+            <div class="controls">
+                <button class="fullscreen-toggle" id="fullscreenToggle">⛶</button>
+                <button class="theme-toggle" id="themeToggle">☀</button>
+            </div>
+        </div>
+        
+        <div class="input-row">
+            <label>Topic:</label>
+            <input type="text" id="topic" class="input-field">
+        </div>
+        
+        <div class="input-row">
+            <label>PRO</label>
+            <input type="text" id="proName" class="input-field">
+            <label>CON</label>
+            <input type="text" id="conName" class="input-field">
+        </div>
+        
+        <div class="prep-timer" id="prepTimerContainer">
+            <div class="prep-time">Prep <span id="prepTimerDisplay">20:00</span></div>
+            <button class="timer-button" id="startPrepButton">Start Prep</button>
+            <button class="timer-button" id="pausePrepButton">Pause</button>
+            <button class="timer-button" id="resetPrepButton">Reset</button>
+        </div>
+        
+        <hr>
+        
+        <div class="timer-display">
+            <div>
+                <div>SEGMENT: <span id="seg">Prep Time</span></div>
+                <div>SPEAKER: <span id="spk">—</span></div>
+            </div>
+            <div class="timer" id="clock">20:00</div>
+            <div class="timer-controls">
+                <button class="timer-button" id="startButton">Start</button>
+                <button class="timer-button" id="pauseButton">Pause</button>
+                <button class="timer-button" id="nextButton">Next</button>
+                <button class="timer-button" id="resetButton">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bellSound" src="bell.mp3" preload="auto"></audio>
+
+    <script>
+        // Junior debate sequence
+        const juniorSequence = [
+            {seg:"Prep Time",   speaker:"Both",   t:1200},
+            {seg:"Constructive",speaker:"PRO",    t:120},
+            {seg:"Cross-X",     speaker:"CON",    t:60},
+            {seg:"Constructive",speaker:"CON",    t:120},
+            {seg:"Prep",        speaker:"—",      t:60},
+            {seg:"Rebuttal",    speaker:"PRO",    t:120},
+            {seg:"Rebuttal",    speaker:"CON",    t:120},
+            {seg:"Prep",        speaker:"—",      t:60},
+            {seg:"Summary",     speaker:"PRO",    t:120},
+            {seg:"Summary",     speaker:"CON",    t:120}
+        ];
+        
+        // Initialize variables
+        let currentSequenceIndex = 0;
+        let mainTimerInterval;
+        let prepTimerInterval;
+        let mainTimerSeconds;
+        let prepTimerSeconds = 20 * 60; // 20 minutes
+        let topicLocked = false;
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark');
+            themeToggle.textContent = '🌙';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            
+            // Update button text and save preference
+            if (body.classList.contains('dark')) {
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.textContent = '☀';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Back button functionality
+        document.getElementById('backButton').addEventListener('click', () => {
+            // Fade out transition
+            document.querySelector('.container').classList.remove('fade-in');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500); // Wait for fade out animation
+        });
+        
+        // Fullscreen toggle
+        document.getElementById('fullscreenToggle').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+        
+        // Initialize main timer
+        function initMainTimer() {
+            const currentSpeech = juniorSequence[currentSequenceIndex];
+            mainTimerSeconds = currentSpeech.t;
+            updateMainTimerDisplay();
+            updateCurrentSpeakerInfo();
+        }
+        
+        // Timer display updates
+        function updateMainTimerDisplay() {
+            const minutes = Math.floor(mainTimerSeconds / 60);
+            const seconds = mainTimerSeconds % 60;
+            const clockDisplay = document.getElementById('clock');
+            clockDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update timer color based on time remaining
+            if (mainTimerSeconds <= -15) {
+                clockDisplay.style.color = 'var(--timer-red)';
+                clockDisplay.classList.add('blinking');
+            } else if (mainTimerSeconds <= 0) {
+                clockDisplay.style.color = 'var(--timer-red)';
+                clockDisplay.classList.remove('blinking');
+            } else if (mainTimerSeconds <= 60) {
+                clockDisplay.style.color = 'var(--timer-orange)';
+                clockDisplay.classList.remove('blinking');
+            } else {
+                clockDisplay.style.color = 'var(--timer-green)';
+                clockDisplay.classList.remove('blinking');
+            }
+        }
+        
+        function updatePrepTimerDisplay() {
+            const minutes = Math.floor(prepTimerSeconds / 60);
+            const seconds = prepTimerSeconds % 60;
+            document.getElementById('prepTimerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Update current speaker information
+        function updateCurrentSpeakerInfo() {
+            const currentSpeech = juniorSequence[currentSequenceIndex];
+            document.getElementById('seg').textContent = currentSpeech.seg;
+            
+            let speakerName = currentSpeech.speaker;
+            if (speakerName === 'PRO') {
+                speakerName = document.getElementById('proName').value || 'PRO';
+            } else if (speakerName === 'CON') {
+                speakerName = document.getElementById('conName').value || 'CON';
+            }
+            
+            document.getElementById('spk').textContent = speakerName;
+        }
+        
+        // Bell functionality
+        function playBell(rings) {
+            const bellSound = document.getElementById('bellSound');
+            let ringCount = 0;
+            
+            function playNextRing() {
+                if (ringCount < rings) {
+                    bellSound.currentTime = 0;
+                    bellSound.play();
+                    ringCount++;
+                    setTimeout(playNextRing, 600);
+                }
+            }
+            
+            playNextRing();
+        }
+        
+        // Check if bells should be played
+        function checkBells(previousSeconds) {
+            // Bell at 30 seconds remaining
+            if (previousSeconds > 30 && mainTimerSeconds <= 30) {
+                playBell(1);
+            }
+            // Bell at time up
+            else if (previousSeconds > 0 && mainTimerSeconds <= 0) {
+                playBell(2);
+            }
+            // Bell at 15 seconds overtime
+            else if (previousSeconds > -15 && mainTimerSeconds <= -15) {
+                playBell(3);
+            }
+        }
+        
+        // Main timer controls
+        document.getElementById('startButton').addEventListener('click', () => {
+            if (mainTimerInterval) return; // Already running
+            
+            // Lock topic on first speech start
+            if (!topicLocked) {
+                document.getElementById('topic').readOnly = true;
+                topicLocked = true;
+                
+                // Hide prep timer when first speech starts
+                if (currentSequenceIndex > 0) { // Don't hide during prep time
+                    document.getElementById('prepTimerContainer').style.display = 'none';
+                }
+            }
+            
+            mainTimerInterval = setInterval(() => {
+                const previousSeconds = mainTimerSeconds;
+                mainTimerSeconds--;
+                updateMainTimerDisplay();
+                checkBells(previousSeconds);
+            }, 1000);
+        });
+        
+        document.getElementById('pauseButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+        });
+        
+        document.getElementById('resetButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+            initMainTimer();
+        });
+        
+        document.getElementById('nextButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+            
+            currentSequenceIndex = (currentSequenceIndex + 1) % juniorSequence.length;
+            initMainTimer();
+        });
+        
+        // Prep timer controls
+        document.getElementById('startPrepButton').addEventListener('click', () => {
+            if (prepTimerInterval) return; // Already running
+            
+            prepTimerInterval = setInterval(() => {
+                if (prepTimerSeconds > 0) {
+                    prepTimerSeconds--;
+                    updatePrepTimerDisplay();
+                } else {
+                    clearInterval(prepTimerInterval);
+                    prepTimerInterval = null;
+                    playBell(2); // Double bell at end of prep time
+                }
+            }, 1000);
+        });
+        
+        document.getElementById('pausePrepButton').addEventListener('click', () => {
+            clearInterval(prepTimerInterval);
+            prepTimerInterval = null;
+        });
+        
+        document.getElementById('resetPrepButton').addEventListener('click', () => {
+            clearInterval(prepTimerInterval);
+            prepTimerInterval = null;
+            prepTimerSeconds = 20 * 60; // Reset to 20 minutes
+            updatePrepTimerDisplay();
+        });
+        
+        // Speaker name input changes
+        document.getElementById('proName').addEventListener('input', updateCurrentSpeakerInfo);
+        document.getElementById('conName').addEventListener('input', updateCurrentSpeakerInfo);
+        
+        // Initialize
+        initMainTimer();
+        updatePrepTimerDisplay();
+        
+        // Add fade-in class after a short delay
+        setTimeout(() => {
+            document.querySelector('.container').classList.add('fade-in');
+        }, 100);
+    </script>
+</body>
+</html>

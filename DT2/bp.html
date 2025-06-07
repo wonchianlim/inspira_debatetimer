@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>British Parliamentary Timer - Inspira Debate Timer</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --button-bg: #f0f0f0;
+            --button-border: #dddddd;
+            --button-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --timer-green: #4CAF50;
+            --timer-orange: #FF9800;
+            --timer-red: #F44336;
+            --section-bg: #f9f9f9;
+        }
+
+        body.dark {
+            --bg-color: #222222;
+            --text-color: #f0f0f0;
+            --button-bg: #444444;
+            --button-border: #555555;
+            --button-hover-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+            --section-bg: #333333;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .container.fade-in {
+            opacity: 1;
+        }
+
+        /* Topbar styling */
+        .topbar {
+            background: linear-gradient(90deg, #002b8b, #1e73ff);
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .topbar button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .top-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .topic-container {
+            margin-bottom: 20px;
+        }
+
+        .topic-input {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Prep timer styling */
+        .prep-timer-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .prep-time-display {
+            font-weight: bold;
+            font-size: 18px;
+            min-width: 70px;
+        }
+
+        /* Speaker inputs styling */
+        .speakers-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .team-speakers {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 18px 0;
+        }
+
+        .team-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--button-border);
+        }
+
+        .speaker-input {
+            padding: 8px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        hr {
+            width: 100%;
+            border: none;
+            border-top: 1px solid var(--button-border);
+            margin: 20px 0;
+        }
+
+        /* Timer display styling */
+        .timer-display {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: var(--section-bg);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .timer-label {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .timer {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 20px 0;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Button styling */
+        .btn-start {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-pause {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .btn-next {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-reset {
+            background-color: #FFEB3B;
+            color: black;
+        }
+
+        .btn-start, .btn-pause, .btn-next, .btn-reset {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn-start:hover, .btn-pause:hover, .btn-next:hover, .btn-reset:hover {
+            filter: brightness(1.1);
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Blinking animation */
+        .blinking {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .speakers-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .timer {
+                font-size: 42px;
+            }
+
+            .prep-timer-container {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .timer-controls {
+                flex-wrap: wrap;
+            }
+
+            .timer {
+                font-size: 36px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .topbar button:first-child {
+                align-self: flex-start;
+            }
+
+            .top-icons {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="topbar">
+            <button id="backButton">← Back Home</button>
+            <h1>INSPIRA DEBATE TIMER</h1>
+            <div class="top-icons">
+                <button id="fullscreenToggle">⤢</button>
+                <button id="themeToggle">☀️</button>
+            </div>
+        </header>
+
+        <div class="topic-container">
+            <input type="text" id="topicInput" class="topic-input" placeholder="Enter debate topic...">
+        </div>
+
+        <div class="prep-timer-container" id="prepTimerContainer">
+            <div class="prep-time-display">Prep Time: <span id="prepTimerDisplay">15:00</span></div>
+            <button class="btn-start" id="startPrepButton">Start</button>
+            <button class="btn-pause" id="pausePrepButton">Pause</button>
+            <button class="btn-reset" id="resetPrepButton">Reset</button>
+        </div>
+
+        <div class="speakers-container">
+            <div class="team-speakers">
+                <div class="team-title">OG Speakers</div>
+                <input type="text" class="speaker-input" id="ogPM" placeholder="Prime Minister">
+                <input type="text" class="speaker-input" id="ogDPM" placeholder="Deputy PM">
+            </div>
+            <div class="team-speakers">
+                <div class="team-title">OO Speakers</div>
+                <input type="text" class="speaker-input" id="ooLO" placeholder="Leader Opp">
+                <input type="text" class="speaker-input" id="ooDLO" placeholder="Deputy LO">
+            </div>
+        </div>
+
+        <div class="speakers-container">
+            <div class="team-speakers">
+                <div class="team-title">CG Speakers</div>
+                <input type="text" class="speaker-input" id="cgMG" placeholder="Member Gov">
+                <input type="text" class="speaker-input" id="cgGW" placeholder="Gov Whip">
+            </div>
+            <div class="team-speakers">
+                <div class="team-title">CO Speakers</div>
+                <input type="text" class="speaker-input" id="coMO" placeholder="Member Opp">
+                <input type="text" class="speaker-input" id="coOW" placeholder="Opp Whip">
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="timer-display">
+            <div class="timer-label" id="seg"></div>
+            <div class="timer-label" id="spk"></div>
+            <div class="timer" id="clock">07:00</div>
+            <div class="timer-controls">
+                <button class="btn-start" id="startButton">Start</button>
+                <button class="btn-pause" id="pauseButton">Pause</button>
+                <button class="btn-next" id="nextButton">Next</button>
+                <button class="btn-reset" id="resetButton">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bellSound" src="bell.mp3" preload="auto"></audio>
+
+    <script>
+        // BP debate sequence
+        const bpSequence = [
+            {seg:"Prime Minister", spk:"OG-1", t:420},  // 7:00
+            {seg:"Leader Opp", spk:"OO-1", t:420},  // 7:00
+            {seg:"Deputy PM", spk:"OG-2", t:420}, // 7:00
+            {seg:"Deputy LO", spk:"OO-2", t:420}, // 7:00
+            {seg:"Member Gov", spk:"CG-1", t:420},  // 7:00
+            {seg:"Member Opp", spk:"CO-1", t:420},  // 7:00
+            {seg:"Gov Whip", spk:"CG-2", t:420},  // 7:00
+            {seg:"Opp Whip", spk:"CO-2", t:420}   // 7:00
+        ];
+        
+        // Initialize variables
+        let currentSequenceIndex = 0;
+        let mainTimerInterval;
+        let prepTimerInterval;
+        let mainTimerSeconds;
+        let prepTimerSeconds = 15 * 60; // Default 15 minutes
+        let topicLocked = false;
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark');
+            themeToggle.textContent = '🌙';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            
+            // Update button text and save preference
+            if (body.classList.contains('dark')) {
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.textContent = '☀';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Back button functionality
+        document.getElementById('backButton').addEventListener('click', () => {
+            // Fade out transition
+            document.querySelector('.container').classList.remove('fade-in');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500); // Wait for fade out animation
+        });
+        
+        // Fullscreen toggle
+        document.getElementById('fullscreenToggle').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+        
+        // Initialize main timer
+        function initMainTimer() {
+            const currentSpeech = bpSequence[currentSequenceIndex];
+            mainTimerSeconds = currentSpeech.t;
+            updateMainTimerDisplay();
+            updateCurrentSpeakerInfo();
+        }
+        
+        // Timer display updates
+        function updateMainTimerDisplay() {
+            const minutes = Math.floor(mainTimerSeconds / 60);
+            const seconds = mainTimerSeconds % 60;
+            const clockDisplay = document.getElementById('clock');
+            clockDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update timer color based on time remaining
+            if (mainTimerSeconds <= -15) {
+                clockDisplay.style.color = 'var(--timer-red)';
+                clockDisplay.classList.add('blinking');
+            } else if (mainTimerSeconds <= 0) {
+                clockDisplay.style.color = 'var(--timer-red)';
+                clockDisplay.classList.remove('blinking');
+            } else if (mainTimerSeconds <= 60) {
+                clockDisplay.style.color = 'var(--timer-orange)';
+                clockDisplay.classList.remove('blinking');
+            } else {
+                clockDisplay.style.color = 'var(--timer-green)';
+                clockDisplay.classList.remove('blinking');
+            }
+        }
+        
+        function updatePrepTimerDisplay() {
+            const minutes = Math.floor(prepTimerSeconds / 60);
+            const seconds = prepTimerSeconds % 60;
+            document.getElementById('prepTimerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Update current speaker information
+        function updateCurrentSpeakerInfo() {
+            const currentSpeech = bpSequence[currentSequenceIndex];
+            document.getElementById('seg').textContent = currentSpeech.seg;
+            
+            let speakerName = '';
+            if (currentSpeech.spk === 'OG-1') {
+                speakerName = document.getElementById('ogPM').value || 'Prime Minister';
+            } else if (currentSpeech.spk === 'OG-2') {
+                speakerName = document.getElementById('ogDPM').value || 'Deputy PM';
+            } else if (currentSpeech.spk === 'OO-1') {
+                speakerName = document.getElementById('ooLO').value || 'Leader Opp';
+            } else if (currentSpeech.spk === 'OO-2') {
+                speakerName = document.getElementById('ooDLO').value || 'Deputy LO';
+            } else if (currentSpeech.spk === 'CG-1') {
+                speakerName = document.getElementById('cgMG').value || 'Member Gov';
+            } else if (currentSpeech.spk === 'CG-2') {
+                speakerName = document.getElementById('cgGW').value || 'Gov Whip';
+            } else if (currentSpeech.spk === 'CO-1') {
+                speakerName = document.getElementById('coMO').value || 'Member Opp';
+            } else if (currentSpeech.spk === 'CO-2') {
+                speakerName = document.getElementById('coOW').value || 'Opp Whip';
+            }
+            
+            document.getElementById('spk').textContent = speakerName;
+        }
+        
+        // Bell functionality
+        function playBell(rings) {
+            const bellSound = document.getElementById('bellSound');
+            let ringCount = 0;
+            
+            function playNextRing() {
+                if (ringCount < rings) {
+                    bellSound.currentTime = 0;
+                    bellSound.play();
+                    ringCount++;
+                    setTimeout(playNextRing, 600);
+                }
+            }
+            
+            playNextRing();
+        }
+        
+        // Check if bells should be played
+        function checkBells(previousSeconds) {
+            // Bell at 1:00 (first minute)
+            if (previousSeconds > 60 && mainTimerSeconds <= 60) {
+                playBell(1);
+            }
+            // Bell at 6:00 (last minute)
+            else if (previousSeconds > 360 && mainTimerSeconds <= 360) {
+                playBell(1);
+            }
+            // Double bell at time up (7:00)
+            else if (previousSeconds > 0 && mainTimerSeconds <= 0) {
+                playBell(2);
+            }
+            // Triple bell at 15 seconds overtime
+            else if (previousSeconds > -15 && mainTimerSeconds <= -15) {
+                playBell(3);
+            }
+        }
+        
+        // Main timer controls
+        document.getElementById('startButton').addEventListener('click', () => {
+            if (mainTimerInterval) return; // Already running
+            
+            // Lock topic on first speech start
+            if (!topicLocked) {
+                document.getElementById('topicInput').readOnly = true;
+                topicLocked = true;
+                
+                // Hide prep timer when debate starts
+                document.getElementById('prepTimerContainer').style.display = 'none';
+            }
+            
+            mainTimerInterval = setInterval(() => {
+                const previousSeconds = mainTimerSeconds;
+                mainTimerSeconds--;
+                updateMainTimerDisplay();
+                checkBells(previousSeconds);
+            }, 1000);
+        });
+        
+        document.getElementById('pauseButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+        });
+        
+        document.getElementById('resetButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+            initMainTimer();
+        });
+        
+        document.getElementById('nextButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+            
+            currentSequenceIndex = (currentSequenceIndex + 1) % bpSequence.length;
+            initMainTimer();
+        });
+        
+        // Prep timer controls
+        document.getElementById('startPrepButton').addEventListener('click', () => {
+            if (prepTimerInterval) return; // Already running
+            
+            prepTimerInterval = setInterval(() => {
+                if (prepTimerSeconds > 0) {
+                    prepTimerSeconds--;
+                    updatePrepTimerDisplay();
+                } else {
+                    clearInterval(prepTimerInterval);
+                    prepTimerInterval = null;
+                    playBell(2); // Double bell at end of prep time
+                }
+            }, 1000);
+        });
+        
+        document.getElementById('pausePrepButton').addEventListener('click', () => {
+            clearInterval(prepTimerInterval);
+            prepTimerInterval = null;
+        });
+        
+        document.getElementById('resetPrepButton').addEventListener('click', () => {
+            clearInterval(prepTimerInterval);
+            prepTimerInterval = null;
+            prepTimerSeconds = 15 * 60; // Reset to 15 minutes
+            updatePrepTimerDisplay();
+        });
+        
+        // Speaker input changes
+        document.querySelectorAll('.speaker-input').forEach(input => {
+            input.addEventListener('input', updateCurrentSpeakerInfo);
+        });
+        
+        // Initialize
+        initMainTimer();
+        updatePrepTimerDisplay();
+        
+        // Add fade-in class after a short delay
+        setTimeout(() => {
+            document.querySelector('.container').classList.add('fade-in');
+        }, 100);
+    </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+:root {
+  --bg: #fff;
+  --text: #222;
+  --card: #f0f0f0;
+  --accent: #4a6fa5;
+  --card-hover: #e6e6e6;
+  --transition-speed: 0.3s;
+}
+
+body.dark {
+  --bg: #1d1d1d;
+  --text: #eee;
+  --card: #333;
+  --accent: #6d98d0;
+  --card-hover: #444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--transition-speed), transform var(--transition-speed);
+}
+
+header {
+  margin: 40px 0;
+  text-align: center;
+  position: relative;
+}
+
+h1 {
+  font-size: 2.5rem;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #777;
+  margin-bottom: 20px;
+}
+
+.top-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.top-controls button {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  margin-left: 10px;
+  padding: 5px;
+  transition: transform 0.2s;
+}
+
+.top-controls button:hover {
+  transform: scale(1.1);
+}
+
+.format-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin: 40px 0;
+}
+
+.format-btn {
+  display: flex;
+  align-items: center;
+  background: var(--card);
+  border-radius: 10px;
+  padding: 20px;
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition-speed);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.format-btn:hover {
+  transform: translateY(-5px);
+  background: var(--card-hover);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.format-icon {
+  font-size: 2rem;
+  margin-right: 15px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.format-info h2 {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+.format-info p {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .format-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .format-btn {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    margin: 20px 0;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .top-controls {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }
+}
+/* AP Timer Styles */
+main.card{max-width:750px;margin:60px auto;padding:32px;background:var(--bg);border-radius:14px;box-shadow:0 4px12px rgba(0,0,0,.1);} 
+.team{margin:24px 0}.team input{flex:1 1 31%;min-width:180px;margin:6px 4px} 
+#clock-wrap{margin:40px 0;text-align:center} 
+#seg{font-weight:600}#clock{font-size:4.5rem;font-weight:700;text-shadow:0 3px 6px rgba(0,0,0,.15)} 
+/* coloured buttons */ 
+.btn-start{background:#19c37d;color:#fff}.btn-pause{background:#e53935;color:#fff} 
+.btn-next{background:#1e88e5;color:#fff}.btn-reset{background:#fdd835;color:#000} 
+.btn-start,.btn-pause,.btn-next,.btn-reset{padding:6px 14px;border:none;border-radius:6px;cursor:pointer;margin:4px} 
+.btn-start:hover,.btn-pause:hover,.btn-next:hover,.btn-reset:hover{filter:brightness(1.1)} 
+/* bg colours + blink */ 
+body.green{background:#e8f5e9}body.yellow{background:#fffde7} 
+body.red{background:#ffebee}body.blink{animation:flash 1s linear infinite} 
+@keyframes flash{0%,50%{background:#ffebee}100%{background:#fff}} 
+
+/* Topbar styles */
+header.topbar{background:linear-gradient(90deg,#002b8b,#1e73ff);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);display:flex;justify-content:space-between;align-items:center;padding:10px 20px;}
+header.topbar button{background:none;border:none;color:white;cursor:pointer;}
+header.topbar h1{margin:0;font-size:1.5rem;}
+.top-icons{display:flex;gap:10px;}
+.reply-row, .prep-row{margin:20px 0;display:flex;align-items:center;flex-wrap:wrap;gap:10px;}
+.ctrl-row{display:flex;justify-content:center;gap:10px;margin-top:20px;}

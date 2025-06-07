@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inspira Debate Timer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container" id="landing">
+    <header>
+      <h1>INSPIRA DEBATE TIMER</h1>
+      <p class="subtitle">Select a debate format to begin</p>
+      <div class="top-controls">
+        <button id="btn-full" aria-label="Toggle fullscreen">⤢</button>
+        <button id="btn-theme" aria-label="Toggle dark mode">☀️</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="format-grid">
+        <a href="ap.html" class="format-btn">
+          <div class="format-icon">🎤</div>
+          <div class="format-info">
+            <h2>AP</h2>
+            <p>3v3 speeches + replies</p>
+          </div>
+        </a>
+        <a href="jr1.html" class="format-btn">
+          <div class="format-icon">🏫</div>
+          <div class="format-info">
+            <h2>Junior</h2>
+            <p>Simplified format for beginners</p>
+          </div>
+        </a>
+        <a href="pf.html" class="format-btn">
+          <div class="format-icon">⚖️</div>
+          <div class="format-info">
+            <h2>PF</h2>
+            <p>Coin toss, prep timers, crossfire rounds</p>
+          </div>
+        </a>
+        <a href="jwsd.html" class="format-btn">
+          <div class="format-icon">🌟</div>
+          <div class="format-info">
+            <h2>JWSD</h2>
+            <p>Junior World Schools format</p>
+          </div>
+        </a>
+        <a href="bp.html" class="format-btn">
+          <div class="format-icon">🏛️</div>
+          <div class="format-info">
+            <h2>BP</h2>
+            <p>British Parliamentary format</p>
+          </div>
+        </a>
+        <a href="wsdc.html" class="format-btn">
+          <div class="format-icon">🌍</div>
+          <div class="format-info">
+            <h2>WSDC</h2>
+            <p>World Schools Debating Championships</p>
+          </div>
+        </a>
+      </div>
+    </main>
+
+    <footer>
+      <p>© 2023 Inspira Debate Timer</p>
+    </footer>
+  </div>
+
+  <script src="theme-fullscreen.js"></script>
+  <script>
+    // Add fade-in transition on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('landing').classList.add('fade-in');
+    });
+  </script>
+</body>
+</html>

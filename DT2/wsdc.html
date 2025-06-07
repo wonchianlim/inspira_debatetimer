@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSDC Timer - Inspira Debate Timer</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --button-bg: #f0f0f0;
+            --button-border: #dddddd;
+            --button-hover-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --timer-green: #4CAF50;
+            --timer-orange: #FF9800;
+            --timer-red: #F44336;
+            --section-bg: #f9f9f9;
+        }
+
+        body.dark {
+            --bg-color: #222222;
+            --text-color: #f0f0f0;
+            --button-bg: #444444;
+            --button-border: #555555;
+            --button-hover-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+            --section-bg: #333333;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .container.fade-in {
+            opacity: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .theme-toggle, .fullscreen-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0;
+        }
+
+        .topic-container {
+            margin-bottom: 20px;
+        }
+
+        .topic-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .prep-timer-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--section-bg);
+            border-radius: 8px;
+        }
+
+        .prep-time-display {
+            font-weight: bold;
+            font-size: 18px;
+            min-width: 70px;
+        }
+
+        .timer-button {
+            padding: 8px 15px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--button-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .timer-button:hover {
+            background-color: var(--button-border);
+        }
+
+        .speakers-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .team-speakers {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .team-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .speaker-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .speaker-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .reply-select {
+            padding: 8px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin-top: 5px;
+        }
+
+        .prep-time-select {
+            padding: 8px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        hr {
+            width: 100%;
+            border: none;
+            border-top: 1px solid var(--button-border);
+            margin: 20px 0;
+        }
+
+        .timer-display {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: var(--section-bg);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .segment-info, .speaker-info {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .timer {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .blinking {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" id="backButton">← Back Home</button>
+            <h1>INSPIRA DEBATE TIMER</h1>
+            <div class="controls">
+                <button class="theme-toggle" id="themeToggle">☀</button>
+                <button class="fullscreen-toggle" id="fullscreenToggle">⛶</button>
+            </div>
+        </div>
+
+        <div class="topic-container">
+            <input type="text" id="topicInput" class="topic-input" placeholder="Topic: Enter debate topic here...">
+        </div>
+
+        <div class="prep-timer-container" id="prepTimerContainer">
+            <span>Prep Time ▼</span>
+            <select id="prepTimeSelect" class="prep-time-select">
+                <option value="15">15 min</option>
+                <option value="30">30 min</option>
+                <option value="60">60 min</option>
+            </select>
+            <span class="prep-time-display" id="prepTimerDisplay">15:00</span>
+            <button class="timer-button" id="startPrepButton">Start</button>
+            <button class="timer-button" id="pausePrepButton">Pause</button>
+            <button class="timer-button" id="resetPrepButton">Reset</button>
+        </div>
+
+        <div class="speakers-container">
+            <div class="team-speakers">
+                <div class="team-title">Gov Speakers:</div>
+                <div class="speaker-row">
+                    <input type="text" class="speaker-input" id="govSpeaker1" placeholder="Speaker 1">
+                    <input type="text" class="speaker-input" id="govSpeaker2" placeholder="Speaker 2">
+                    <input type="text" class="speaker-input" id="govSpeaker3" placeholder="Speaker 3">
+                </div>
+                <div>
+                    <label for="govReplySelect">Reply Speaker ▼</label>
+                    <select id="govReplySelect" class="reply-select">
+                        <option value="1">Gov 1</option>
+                        <option value="2">Gov 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="team-speakers">
+                <div class="team-title">Opp Speakers:</div>
+                <div class="speaker-row">
+                    <input type="text" class="speaker-input" id="oppSpeaker1" placeholder="Speaker 1">
+                    <input type="text" class="speaker-input" id="oppSpeaker2" placeholder="Speaker 2">
+                    <input type="text" class="speaker-input" id="oppSpeaker3" placeholder="Speaker 3">
+                </div>
+                <div>
+                    <label for="oppReplySelect">Reply Speaker ▼</label>
+                    <select id="oppReplySelect" class="reply-select">
+                        <option value="1">Opp 1</option>
+                        <option value="2">Opp 2</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="timer-display">
+            <div class="segment-info" id="seg">SEGMENT: </div>
+            <div class="speaker-info" id="spk">SPEAKER: </div>
+            <div class="timer" id="clock">08:00</div>
+            <div class="timer-controls">
+                <button class="timer-button" id="startButton">Start</button>
+                <button class="timer-button" id="pauseButton">Pause</button>
+                <button class="timer-button" id="nextButton">Next</button>
+                <button class="timer-button" id="resetButton">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bellSound" src="bell.mp3" preload="auto"></audio>
+
+    <script>
+        // WSDC debate sequence
+        const wsdcSequence = [
+            {seg:"1st Speaker", spk:"Gov-1", t:480},  // 8:00
+            {seg:"1st Speaker", spk:"Opp-1", t:480},  // 8:00
+            {seg:"2nd Speaker", spk:"Gov-2", t:480},  // 8:00
+            {seg:"2nd Speaker", spk:"Opp-2", t:480},  // 8:00
+            {seg:"3rd Speaker", spk:"Gov-3", t:480},  // 8:00
+            {seg:"3rd Speaker", spk:"Opp-3", t:480},  // 8:00
+            {seg:"Reply Speech", spk:"Opp-Reply", t:240},  // 4:00
+            {seg:"Reply Speech", spk:"Gov-Reply", t:240}   // 4:00
+        ];
+        
+        // Initialize variables
+        let currentSequenceIndex = 0;
+        let mainTimerInterval;
+        let prepTimerInterval;
+        let mainTimerSeconds;
+        let prepTimerSeconds = 15 * 60; // Default 15 minutes
+        let topicLocked = false;
+        
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark');
+            themeToggle.textContent = '🌙';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            
+            // Update button text and save preference
+            if (body.classList.contains('dark')) {
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeToggle.textContent = '☀';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Back button functionality
+        document.getElementById('backButton').addEventListener('click', () => {
+            // Fade out transition
+            document.querySelector('.container').classList.remove('fade-in');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500); // Wait for fade out animation
+        });
+        
+        // Fullscreen toggle
+        document.getElementById('fullscreenToggle').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        });
+        
+        // Prep time selection change
+        document.getElementById('prepTimeSelect').addEventListener('change', function() {
+            const minutes = parseInt(this.value);
+            prepTimerSeconds = minutes * 60;
+            updatePrepTimerDisplay();
+        });
+        
+        // Initialize main timer
+        function initMainTimer() {
+            const currentSpeech = wsdcSequence[currentSequenceIndex];
+            mainTimerSeconds = currentSpeech.t;
+            updateMainTimerDisplay();
+            updateCurrentSpeakerInfo();
+        }
+        
+        // Timer display updates
+        function updateMainTimerDisplay() {
+            const minutes = Math.floor(mainTimerSeconds / 60);
+            const seconds = mainTimerSeconds % 60;
+            const clockDisplay = document.getElementById('clock');
+            clockDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update timer color based on time remaining
+            if (mainTimerSeconds <= -15) {
+                clockDisplay.style.color = 'var(--timer-red)';
+                clockDisplay.classList.add('blinking');
+            } else if (mainTimerSeconds <= 0) {
+                clockDisplay.style.color = 'var(--timer-red)';
+                clockDisplay.classList.remove('blinking');
+            } else if (mainTimerSeconds <= 60) {
+                clockDisplay.style.color = 'var(--timer-orange)';
+                clockDisplay.classList.remove('blinking');
+            } else {
+                clockDisplay.style.color = 'var(--timer-green)';
+                clockDisplay.classList.remove('blinking');
+            }
+        }
+        
+        function updatePrepTimerDisplay() {
+            const minutes = Math.floor(prepTimerSeconds / 60);
+            const seconds = prepTimerSeconds % 60;
+            document.getElementById('prepTimerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Update current speaker information
+        function updateCurrentSpeakerInfo() {
+            const currentSpeech = wsdcSequence[currentSequenceIndex];
+            document.getElementById('seg').textContent = `SEGMENT: ${currentSpeech.seg}`;
+            
+            let speakerName = '';
+            if (currentSpeech.spk === 'Gov-1') {
+                speakerName = document.getElementById('govSpeaker1').value || 'Gov Speaker 1';
+            } else if (currentSpeech.spk === 'Gov-2') {
+                speakerName = document.getElementById('govSpeaker2').value || 'Gov Speaker 2';
+            } else if (currentSpeech.spk === 'Gov-3') {
+                speakerName = document.getElementById('govSpeaker3').value || 'Gov Speaker 3';
+            } else if (currentSpeech.spk === 'Opp-1') {
+                speakerName = document.getElementById('oppSpeaker1').value || 'Opp Speaker 1';
+            } else if (currentSpeech.spk === 'Opp-2') {
+                speakerName = document.getElementById('oppSpeaker2').value || 'Opp Speaker 2';
+            } else if (currentSpeech.spk === 'Opp-3') {
+                speakerName = document.getElementById('oppSpeaker3').value || 'Opp Speaker 3';
+            } else if (currentSpeech.spk === 'Gov-Reply') {
+                const replyIndex = document.getElementById('govReplySelect').value;
+                speakerName = document.getElementById(`govSpeaker${replyIndex}`).value || `Gov Speaker ${replyIndex}`;
+            } else if (currentSpeech.spk === 'Opp-Reply') {
+                const replyIndex = document.getElementById('oppReplySelect').value;
+                speakerName = document.getElementById(`oppSpeaker${replyIndex}`).value || `Opp Speaker ${replyIndex}`;
+            }
+            
+            document.getElementById('spk').textContent = `SPEAKER: ${speakerName}`;
+        }
+        
+        // Bell functionality
+        function playBell(rings) {
+            const bellSound = document.getElementById('bellSound');
+            let ringCount = 0;
+            
+            function playNextRing() {
+                if (ringCount < rings) {
+                    bellSound.currentTime = 0;
+                    bellSound.play();
+                    ringCount++;
+                    setTimeout(playNextRing, 600);
+                }
+            }
+            
+            playNextRing();
+        }
+        
+        // Check if bells should be played
+        function checkBells(previousSeconds) {
+            const currentSpeech = wsdcSequence[currentSequenceIndex];
+            
+            if (currentSpeech.t === 480) { // 8-minute speech
+                // Bell at 1:00 (first minute)
+                if (previousSeconds > 60 && mainTimerSeconds <= 60) {
+                    playBell(1);
+                }
+                // Bell at 7:00 (last minute)
+                else if (previousSeconds > 420 && mainTimerSeconds <= 420) {
+                    playBell(1);
+                }
+                // Double bell at time up (8:00)
+                else if (previousSeconds > 0 && mainTimerSeconds <= 0) {
+                    playBell(2);
+                }
+                // Triple bell at 15 seconds overtime
+                else if (previousSeconds > -15 && mainTimerSeconds <= -15) {
+                    playBell(3);
+                }
+            } else if (currentSpeech.t === 240) { // 4-minute reply speech
+                // Bell at 3:00 (last minute)
+                if (previousSeconds > 180 && mainTimerSeconds <= 180) {
+                    playBell(1);
+                }
+                // Double bell at time up (4:00)
+                else if (previousSeconds > 0 && mainTimerSeconds <= 0) {
+                    playBell(2);
+                }
+                // Triple bell at 15 seconds overtime
+                else if (previousSeconds > -15 && mainTimerSeconds <= -15) {
+                    playBell(3);
+                }
+            }
+        }
+        
+        // Main timer controls
+        document.getElementById('startButton').addEventListener('click', () => {
+            if (mainTimerInterval) return; // Already running
+            
+            // Lock topic on first speech start
+            if (!topicLocked) {
+                document.getElementById('topicInput').readOnly = true;
+                topicLocked = true;
+                
+                // Hide prep timer when debate starts
+                document.getElementById('prepTimerContainer').style.display = 'none';
+            }
+            
+            mainTimerInterval = setInterval(() => {
+                const previousSeconds = mainTimerSeconds;
+                mainTimerSeconds--;
+                updateMainTimerDisplay();
+                checkBells(previousSeconds);
+            }, 1000);
+        });
+        
+        document.getElementById('pauseButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+        });
+        
+        document.getElementById('resetButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+            initMainTimer();
+        });
+        
+        document.getElementById('nextButton').addEventListener('click', () => {
+            clearInterval(mainTimerInterval);
+            mainTimerInterval = null;
+            
+            currentSequenceIndex = (currentSequenceIndex + 1) % wsdcSequence.length;
+            initMainTimer();
+        });
+        
+        // Prep timer controls
+        document.getElementById('startPrepButton').addEventListener('click', () => {
+            if (prepTimerInterval) return; // Already running
+            
+            prepTimerInterval = setInterval(() => {
+                if (prepTimerSeconds > 0) {
+                    prepTimerSeconds--;
+                    updatePrepTimerDisplay();
+                } else {
+                    clearInterval(prepTimerInterval);
+                    prepTimerInterval = null;
+                    playBell(2); // Double bell at end of prep time
+                }
+            }, 1000);
+        });
+        
+        document.getElementById('pausePrepButton').addEventListener('click', () => {
+            clearInterval(prepTimerInterval);
+            prepTimerInterval = null;
+        });
+        
+        document.getElementById('resetPrepButton').addEventListener('click', () => {
+            clearInterval(prepTimerInterval);
+            prepTimerInterval = null;
+            const minutes = parseInt(document.getElementById('prepTimeSelect').value);
+            prepTimerSeconds = minutes * 60;
+            updatePrepTimerDisplay();
+        });
+        
+        // Speaker input changes
+        document.querySelectorAll('.speaker-input').forEach(input => {
+            input.addEventListener('input', updateCurrentSpeakerInfo);
+        });
+        
+        // Reply speaker selection changes
+        document.getElementById('govReplySelect').addEventListener('change', updateCurrentSpeakerInfo);
+        document.getElementById('oppReplySelect').addEventListener('change', updateCurrentSpeakerInfo);
+        
+        // Initialize
+        initMainTimer();
+        updatePrepTimerDisplay();
+        
+        // Add fade-in class after a short delay
+        setTimeout(() => {
+            document.querySelector('.container').classList.add('fade-in');
+        }, 100);
+    </script>
+</body>
+</html>
